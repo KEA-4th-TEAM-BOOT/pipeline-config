@@ -16,7 +16,6 @@ spec:
     component: backend-server
     name: api-tester
     instance: api-tester-2214
-    blue-green-no: "1"
   ports:
     - port: 80
       targetPort: http

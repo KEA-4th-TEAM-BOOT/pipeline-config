@@ -2,13 +2,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: pipelinetest-418
-  name: api-tester-2214-2
+  name: api-tester-2214-1
   labels:
     part-of: k8s-anotherclass
     component: backend-server
     name: api-tester
     instance: api-tester-2214
-    version: 2.0.0
+    version: 1.0.0
     managed-by: kubectl
 spec:
   selector:
@@ -27,14 +27,13 @@ spec:
         component: backend-server
         name: api-tester
         instance: api-tester-2214
-        version: 2.0.0
-        blue-green-no: "2"
+        version: 1.0.0
     spec:
       nodeSelector:
         kubernetes.io/hostname: 57-mhs-k8s-jenkins
       containers:
-        - name: api-tester-2214-2
-          image: codrin2/pipline-test:v2.0.0
+        - name: api-tester-2214
+          image: codrin2/pipeline-test:v1.0.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

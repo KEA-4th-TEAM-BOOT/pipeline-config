@@ -17,8 +17,6 @@ pipeline {
 
 
 
-
-
         stage('컨테이너 빌드') {
             steps {
                 // 도커 빌드
@@ -29,13 +27,8 @@ pipeline {
         stage('컨테이너 업로드') {
             steps {
                 // DockerHub로 이미지 업로드
-                script{
-                    if (DOCKERHUB_USERNAME == "codrin2") {
-                        echo "docker push ${DOCKERHUB_USERNAME}/pipeline-test:v1.0.0"
-                    } else {
-                        sh "docker push ${DOCKERHUB_USERNAME}/pipeline-test:v1.0.0"
-                    }
-                }
+                sh "docker push ${DOCKERHUB_USERNAME}/pipeline-test:v1.0.0"
+
             }
         }
 
@@ -47,53 +40,28 @@ pipeline {
         }
 
 
-        stage('쿠버네티스 Blue배포') {
+        stage('쿠버네티스 배포') {
             steps {
-                sh "kubectl apply -f ./deploy/k8s/blue/namespace.yaml"
-                sh "kubectl apply -f ./deploy/k8s/blue/configmap.yaml"
-                sh "kubectl apply -f ./deploy/k8s/blue/secret.yaml"
-                sh "kubectl apply -f ./deploy/k8s/blue/service.yaml"
-                sh "kubectl apply -f ./deploy/k8s/blue/deployment.yaml"
+                // K8S 배포
+                sh "kubectl apply -f ./deploy/k8s/namespace.yaml"
+                sh "kubectl apply -f ./deploy/k8s/configmap.yaml"
+                sh "kubectl apply -f ./deploy/k8s/secret.yaml"
+                sh "kubectl apply -f ./deploy/k8s/service.yaml"
+                sh "kubectl apply -f ./deploy/k8s/deployment.yaml"
             }
         }
 
-        stage('자동배포 시작') {
+        stage('배포 확인') {
             steps {
-                input message: '자동배포 시작', ok: "Yes"
-            }
-        }
+                // 10초 대기
+                sh "sleep 10"
 
-        stage('쿠버네티스 Green배포') {
-            steps {
-                sh "kubectl apply -f ./deploy/k8s/green/deployment.yaml"
-            }
-        }
-
-        stage('Green 배포 확인중') {
-            steps {
-                script {
-                    def returnValue
-                    while (returnValue != "true true"){
-                        returnValue = sh(returnStdout: true, encoding: 'UTF-8', script: "kubectl get -n pipelinetest-418 pods -l instance='api-tester-2214',blue-green-no='2' -o jsonpath='{.items[*].status.containerStatuses[*].ready}'")
-                        echo "${returnValue}"
-                        sleep 5
-                    }
-                }
-            }
-        }
-
-        stage('Green 전환 완료') {
-            steps {
-                sh "kubectl patch -n pipelinetest-418 svc api-tester-2214 -p '{\"spec\": {\"selector\": {\"blue-green-no\": \"2\"}}}'"
-            }
-        }
-
-        stage('Blue 삭제') {
-            steps {
-                sh "kubectl delete -f ./deploy/k8s/blue/deployment.yaml"
-                sh "kubectl patch -n pipelinetest-418 svc api-tester-2214 -p '{\"metadata\": {\"labels\": {\"version\": \"2.0.0\"}}}'"
-                sh "kubectl patch -n pipelinetest-418 cm api-tester-2214-properties -p '{\"metadata\": {\"labels\": {\"version\": \"2.0.0\"}}}'"
-                sh "kubectl patch -n pipelinetest-418 secret api-tester-2214-postgresql -p '{\"metadata\": {\"labels\": {\"version\": \"2.0.0\"}}}'"
+                // K8S 배포
+                sh "kubectl get -f ./deploy/k8s/namespace.yaml"
+                sh "kubectl get -f ./deploy/k8s/configmap.yaml"
+                sh "kubectl get -f ./deploy/k8s/secret.yaml"
+                sh "kubectl get -f ./deploy/k8s/service.yaml"
+                sh "kubectl get -f ./deploy/k8s/deployment.yaml"
             }
         }
     }
