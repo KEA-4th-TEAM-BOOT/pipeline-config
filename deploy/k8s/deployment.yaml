@@ -29,36 +29,13 @@ spec:
         instance: api-tester-2214
         version: 1.0.0
     spec:
-      nodeSelector:
-        kubernetes.io/hostname: 57-mhs-k8s-jenkins
       containers:
         - name: api-tester-2214
           image: codrin2/pipeline-test:v1.0.0
           imagePullPolicy: Always
           ports:
-            - containerPort: 8080
+            - containerPort: 80
               name: http
-          envFrom:
-            - configMapRef:
-                name: api-tester-2214-properties
-          startupProbe:
-            httpGet:
-              path: "/startup"
-              port: 8080
-            periodSeconds: 5
-            failureThreshold: 24
-          readinessProbe:
-            httpGet:
-              path: "/readiness"
-              port: 8080
-            periodSeconds: 10
-            failureThreshold: 3
-          livenessProbe:
-            httpGet:
-              path: "/liveness"
-              port: 8080
-            periodSeconds: 10
-            failureThreshold: 3
           resources:
             requests:
               memory: "100Mi"
@@ -66,10 +43,3 @@ spec:
             limits:
               memory: "200Mi"
               cpu: "200m"
-          volumeMounts:
-            - name: secret-datasource
-              mountPath: /usr/src/myapp/datasource
-      volumes:
-        - name: secret-datasource
-          secret:
-            secretName: api-tester-2214-postgresql
