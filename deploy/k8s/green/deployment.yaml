@@ -31,7 +31,7 @@ spec:
         blue-green-no: "2"
     spec:
       nodeSelector:
-        kubernetes.io/hostname: 57-mhs-k8s-master
+        kubernetes.io/hostname: 57-mhs-k8s-jenkins
       containers:
         - name: api-tester-2214-2
           image: codrin2/pipline-test:v2.0.0
