@@ -22,7 +22,7 @@ pipeline {
         stage('컨테이너 빌드') {
             steps {
                 // 도커 빌드
-                sh "docker build -t ${DOCKERHUB_USERNAME}/pipeline-test:v1.0.0 ./build/docker"
+                sh "docker build -t ${DOCKERHUB_USERNAME}/pipeline-test:v1.0.0 ."
             }
         }
 
