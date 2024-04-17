@@ -17,12 +17,7 @@ pipeline {
 
 
 
-        stage('릴리즈파일 체크아웃') {
-            steps {
-                checkout scmGit(branches: [[name: '*/main']],
-                                userRemoteConfigs: [[url: "${GITHUB_URL}"]])
-            }
-        }
+
 
         stage('컨테이너 빌드') {
             steps {
@@ -41,6 +36,13 @@ pipeline {
                         sh "docker push ${DOCKERHUB_USERNAME}/pipeline-test:v1.0.0"
                     }
                 }
+            }
+        }
+
+        stage('릴리즈파일 체크아웃') {
+            steps {
+                checkout scmGit(branches: [[name: '*/main']],
+                                userRemoteConfigs: [[url: "${GITHUB_URL}"]])
             }
         }
 
